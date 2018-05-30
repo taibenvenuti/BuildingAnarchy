@@ -12,8 +12,6 @@ namespace BuildingAnarchy
 
         public bool m_flattenTerrain;
 
-        public bool m_useColorVariations;
-
         public bool m_fullGravel;
 
         public bool m_fullPavement;

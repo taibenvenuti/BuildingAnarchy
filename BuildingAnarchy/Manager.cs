@@ -177,7 +177,7 @@ namespace BuildingAnarchy
 
             if ((Mod.Settings.UseArrowKeys && Input.GetKeyDown(KeyCode.UpArrow)) || (!Mod.Settings.UseArrowKeys && Input.GetKeyDown(KeyCode.K)))
             {
-                var mode = (int)currentMode + 1 > 6 ? 0 : currentMode + 1;
+                var mode = (int)currentMode + 1 > 7 ? 0 : currentMode + 1;
                 
                 currentMode = mode;
 
@@ -188,7 +188,7 @@ namespace BuildingAnarchy
 
             if ((Mod.Settings.UseArrowKeys && Input.GetKeyDown(KeyCode.DownArrow)) || (!Mod.Settings.UseArrowKeys && Input.GetKeyDown(KeyCode.L)))
             {  
-                currentMode = currentMode - 1 < 0 ? (PlacementMode)6 : currentMode - 1;                
+                currentMode = currentMode - 1 < 0 ? (PlacementMode)7 : currentMode - 1;                
 
                 buildingInfo.SetPlacementMode(currentMode);
 
@@ -226,11 +226,6 @@ namespace BuildingAnarchy
                     buildingInfo.m_flattenTerrain = properties.m_flattenTerrain;
                     buildingInfo.m_fullGravel = properties.m_fullGravel;
                     buildingInfo.m_fullPavement = properties.m_fullPavement;
-                    buildingInfo.m_useColorVariations = properties.m_useColorVariations;
-                    buildingInfo.m_color0 = properties.m_color0;
-                    buildingInfo.m_color1 = properties.m_color1;
-                    buildingInfo.m_color2 = properties.m_color2;
-                    buildingInfo.m_color3 = properties.m_color3;
                 }
             }
 
