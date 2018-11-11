@@ -239,13 +239,16 @@ namespace BuildingAnarchy
         {
             string tooltipText = "<color #87d3ff>";
 
-            if (Mod.Settings.DisplayPlacementMode) tooltipText += $"Placement Mode: {buildingInfo.m_placementMode}";
+            if (buildingInfo != null)
+            {
+                if (Mod.Settings.DisplayPlacementMode) tooltipText += $"Placement Mode: {buildingInfo.m_placementMode}";
 
-            if (Mod.Settings.DisplayFlattenTerrain) tooltipText += $"\nFlatten Terrain: {State(buildingInfo.m_flattenTerrain)}";
+                if (Mod.Settings.DisplayFlattenTerrain) tooltipText += $"\nFlatten Terrain: {State(buildingInfo.m_flattenTerrain)}";
 
-            if (Mod.Settings.DisplayFullGravel) tooltipText += $"\nFull Gravel: {State(buildingInfo.m_fullGravel)}";
+                if (Mod.Settings.DisplayFullGravel) tooltipText += $"\nFull Gravel: {State(buildingInfo.m_fullGravel)}";
 
-            if (Mod.Settings.DisplayFullPavement) tooltipText += $"\nFull Pavement: {State(buildingInfo.m_fullPavement)}";
+                if (Mod.Settings.DisplayFullPavement) tooltipText += $"\nFull Pavement: {State(buildingInfo.m_fullPavement)}";                
+            }
 
             tooltipText += "</color>";
 
