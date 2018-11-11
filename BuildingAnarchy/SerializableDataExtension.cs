@@ -9,17 +9,17 @@ namespace BuildingAnarchy
 {
     public class SerializableDataExtension : SerializableDataExtensionBase
     {
-        private BuildingAnarchy instance => BuildingAnarchy.instance;
+        private BuildingAnarchy Instance => BuildingAnarchy.instance;
 
         private static readonly string m_dataID = "BUILDING_ANARCHY_DATA";
 
-        private List<BuildingEntry> savegameBuildingData
+        private List<BuildingEntry> SavegameBuildingData
         {
             get
             {
                 var list = new List<BuildingEntry>();
-                if (instance.savegameBuildingData != null)
-                    foreach (var item in instance.savegameBuildingData)
+                if (Instance.savegameBuildingData != null)
+                    foreach (var item in Instance.savegameBuildingData)
                         list.Add(item);
                 return list;
 
@@ -30,7 +30,7 @@ namespace BuildingAnarchy
                 if (value != null)
                     foreach (var item in value)                
                         collection.Add(item.Key, item.Value);
-                instance.savegameBuildingData = collection;                
+                Instance.savegameBuildingData = collection;                
             }
         }
         
@@ -41,15 +41,22 @@ namespace BuildingAnarchy
 
             if (!Mod.Settings.UseSavegameData && !Mod.Settings.SaveGlobalDataOnDataChanged) Mod.Settings.Save();
 
-            if (!Mod.Settings.UseSavegameData || instance.savegameBuildingData == null) return;
+            if (!Mod.Settings.UseSavegameData || Instance.savegameBuildingData == null) return;
 
             using (var memoryStream = new MemoryStream())
             {
-                var binaryFormatter = new BinaryFormatter();
+                try
+                {
+                    var binaryFormatter = new BinaryFormatter();
 
-                binaryFormatter.Serialize(memoryStream, savegameBuildingData);
+                    binaryFormatter.Serialize(memoryStream, SavegameBuildingData);
 
-                serializableDataManager.SaveData(m_dataID, memoryStream.ToArray());
+                    serializableDataManager.SaveData(m_dataID, memoryStream.ToArray());
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogError(exception);
+                }
             }
         }
 
@@ -67,7 +74,14 @@ namespace BuildingAnarchy
 
             using (var memoryStream = new MemoryStream(data))
             {
-                savegameBuildingData = binaryFormatter.Deserialize(memoryStream) as List<BuildingEntry>;
+                try
+                {
+                    SavegameBuildingData = binaryFormatter.Deserialize(memoryStream) as List<BuildingEntry>;
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogError(exception);
+                }
             }            
         }
     }    

@@ -1,5 +1,7 @@
 ﻿using ColossalFramework.UI;
+using Harmony;
 using ICities;
+using System.Reflection;
 using UnityEngine;
 using static BuildingInfo;
 
@@ -12,18 +14,22 @@ namespace BuildingAnarchy
 
         public string Description => "Plop buildings almost anywhere.";
 
-        private BuildingAnarchy placementModeManager => BuildingAnarchy.instance;
+        private BuildingAnarchy PlacementModeManager => BuildingAnarchy.instance;
+
+        private HarmonyInstance harmony;        
 
         public override void OnLevelLoaded(LoadMode mode)
         {
             base.OnLevelLoaded(mode);
-            placementModeManager.Initialize();
+            harmony = HarmonyInstance.Create("com.tpb.buildinganarchy");
+            harmony.PatchAll(Assembly.GetExecutingAssembly());
+            PlacementModeManager.Initialize();
         }
 
         public override void OnLevelUnloading()
         {
             base.OnLevelUnloading();
-            placementModeManager.Release();
+            PlacementModeManager.Release();
         }
 
         #region UserInterface
@@ -69,7 +75,7 @@ namespace BuildingAnarchy
 
         private string[] shortcutOptions = new string[] { "UP and DOWN Arrow Keys", "K and L Keys" };
 
-        private int selectedShortcutIndex => Settings.UseArrowKeys ? 0 : 1;
+        private int SelectedShortcutIndex => Settings.UseArrowKeys ? 0 : 1;
 
         public void OnSettingsUI(UIHelperBase helper)
         {
@@ -132,7 +138,7 @@ namespace BuildingAnarchy
 
             helper.AddSpace(20);            
 
-            shortcutsDropdown = (UIDropDown)helper.AddDropdown("Select Placement Mode keyboard shortcut preference", shortcutOptions, selectedShortcutIndex, (i) =>
+            shortcutsDropdown = (UIDropDown)helper.AddDropdown("Select Placement Mode keyboard shortcut preference", shortcutOptions, SelectedShortcutIndex, (i) =>
             {
                 Settings.UseArrowKeys = i == 0 ? true : false;
 

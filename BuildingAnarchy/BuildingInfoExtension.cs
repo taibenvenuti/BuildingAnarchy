@@ -14,8 +14,7 @@
 
         public static BuildingInfo GetCustomizedInfo(this BuildingInfo building)
         {
-            CustomizableProperties customProperties;
-            if (BuildingAnarchy.instance.savegameBuildingData.TryGetValue(building.name, out customProperties))
+            if (BuildingAnarchy.instance.savegameBuildingData.TryGetValue(building.name, out CustomizableProperties customProperties))
             {
                 building.m_placementMode = customProperties.m_placementMode;
                 building.m_fullGravel = customProperties.m_fullGravel;

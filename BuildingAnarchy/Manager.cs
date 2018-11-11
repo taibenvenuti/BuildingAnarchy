@@ -19,11 +19,15 @@ namespace BuildingAnarchy
 
         private Dictionary<string, CustomizableProperties> originalBuildingData = new Dictionary<string, CustomizableProperties>();
 
-        private ToolBase tool => ToolsModifierControl.toolController.CurrentTool;
+        private ToolBase Tool => ToolsModifierControl.toolController.CurrentTool;
+
+        internal bool IsBuildingTool => Tool is BuildingTool;
 
         private bool isToolEnabled;
 
-        private BuildingInfo buildingInfo;        
+        private BuildingInfo buildingInfo;
+
+        internal BuildingInfo BuildingInfo => buildingInfo;
 
         private PlacementMode currentMode;
 
@@ -33,16 +37,12 @@ namespace BuildingAnarchy
             {
                 if (ChangedSelectedBuilding(buildingInfo.name) || isToolEnabled == false)
                 {
-                    CustomizableProperties customProperties;
-
-                    if (!originalBuildingData.TryGetValue(buildingInfo.name, out customProperties))
+                    if (!originalBuildingData.TryGetValue(buildingInfo.name, out CustomizableProperties customProperties))
                     {
                         originalBuildingData.Add(buildingInfo.name, new CustomizableProperties(buildingInfo));
                     }
-                    
-                    CustomizableProperties properties;
 
-                    currentMode = Mod.Settings.UseSavegameData  && savegameBuildingData .TryGetValue(buildingInfo.name, out properties) ? properties.m_placementMode : globalBuildingData.TryGetValue(buildingInfo.name, out properties) ? properties.m_placementMode : originalBuildingData[buildingInfo.name].m_placementMode;                                                            
+                    currentMode = Mod.Settings.UseSavegameData && savegameBuildingData.TryGetValue(buildingInfo.name, out CustomizableProperties properties) ? properties.m_placementMode : globalBuildingData.TryGetValue(buildingInfo.name, out properties) ? properties.m_placementMode : originalBuildingData[buildingInfo.name].m_placementMode;
 
                     lastBuilding = buildingInfo.name;
 
@@ -63,7 +63,9 @@ namespace BuildingAnarchy
 
             CacheOriginalData();            
 
-            LoadCustomData(true);             
+            LoadCustomData(true);
+
+            ToolBase.cursorInfoLabel.textAlignment = ColossalFramework.UI.UIHorizontalAlignment.Left;
         }
 
         internal void Release()
@@ -81,12 +83,10 @@ namespace BuildingAnarchy
 
                 if (building == null || building.name == null) continue;
 
-                CustomizableProperties originalProperties;
-
-                if (!originalBuildingData.TryGetValue(building.name, out originalProperties))
+                if (!originalBuildingData.TryGetValue(building.name, out CustomizableProperties originalProperties))
                 {
-                    originalBuildingData.Add(building.name, building.GetOriginalProperties());    
-                }                
+                    originalBuildingData.Add(building.name, building.GetOriginalProperties());
+                }
             }
         }
 
@@ -98,11 +98,9 @@ namespace BuildingAnarchy
 
                 if (building == null || building.name == null) continue;
 
-                CustomizableProperties customProperties;
-
                 var collection = Mod.Settings.UseSavegameData ? savegameBuildingData : globalBuildingData;
 
-                if (collection.TryGetValue(building.name, out customProperties))
+                if (collection.TryGetValue(building.name, out CustomizableProperties customProperties))
                 {
                     building.SetCustomProperties(customProperties);
                 }
@@ -134,15 +132,12 @@ namespace BuildingAnarchy
 
         private void SaveBuilding(BuildingInfo building)
         {
-            CustomizableProperties customProperties;
-
             var collection = Mod.Settings.UseSavegameData ? savegameBuildingData : globalBuildingData;
 
-            if (!collection.TryGetValue(building.name, out customProperties))
+            if (!collection.TryGetValue(building.name, out CustomizableProperties customProperties))
             {
                 collection.Add(building.name, new CustomizableProperties(building));
             }
-
             else collection[building.name] = new CustomizableProperties(building);
 
             if (!Mod.Settings.UseSavegameData && Mod.Settings.SaveGlobalDataOnDataChanged) Mod.Settings.Save();
@@ -150,15 +145,15 @@ namespace BuildingAnarchy
 
         private void Update()
         {
-            if (!initialized) return;
+            if (!initialized || ToolsModifierControl.toolController.IsInsideUI) return;
 
-            if (!(tool is BuildingTool))
+            if (!(Tool is BuildingTool))
             {
                 isToolEnabled = false;
 
                 return;
             }
-            var buildingTool = tool as BuildingTool;
+            var buildingTool = Tool as BuildingTool;
 
             if (buildingTool == null) return;
 
@@ -218,18 +213,16 @@ namespace BuildingAnarchy
 
             if (Input.GetKey(KeyCode.Home))
             {
-                CustomizableProperties properties;
-
-                if (originalBuildingData.TryGetValue(buildingInfo.name, out properties))
+                if (originalBuildingData.TryGetValue(buildingInfo.name, out CustomizableProperties properties))
                 {
                     buildingInfo.m_placementMode = properties.m_placementMode;
                     buildingInfo.m_flattenTerrain = properties.m_flattenTerrain;
                     buildingInfo.m_fullGravel = properties.m_fullGravel;
                     buildingInfo.m_fullPavement = properties.m_fullPavement;
                 }
-            }
 
-            ToolBase.cursorInfoLabel.text += GenerateTooltipText();
+                SaveBuilding(buildingInfo);
+            }
         }
 
         private bool ChangedSelectedBuilding(string building)
@@ -242,11 +235,11 @@ namespace BuildingAnarchy
             return property ? " ON" : "OFF";
         }
 
-        private string GenerateTooltipText()
+        internal string GenerateTooltipText()
         {
-            string tooltipText = "<color #40d0ff>";
+            string tooltipText = "<color #87d3ff>";
 
-            if (Mod.Settings.DisplayPlacementMode) tooltipText += $"\n\nPlacement Mode: " + $"{buildingInfo.m_placementMode}".PadLeft(PlacementMode.ShorelineOrGround.ToString().Length - buildingInfo.m_placementMode.ToString().Length, char.Parse(" "));
+            if (Mod.Settings.DisplayPlacementMode) tooltipText += $"Placement Mode: {buildingInfo.m_placementMode}";
 
             if (Mod.Settings.DisplayFlattenTerrain) tooltipText += $"\nFlatten Terrain: {State(buildingInfo.m_flattenTerrain)}";
 
@@ -254,13 +247,9 @@ namespace BuildingAnarchy
 
             if (Mod.Settings.DisplayFullPavement) tooltipText += $"\nFull Pavement: {State(buildingInfo.m_fullPavement)}";
 
+            tooltipText += "</color>";
+
             return tooltipText;
         }        
     }
 }
-/*
-\nPlacement Mode:  ShorelineOrGround    
-\nFlatten Terrain:               OFF
-\nFull Gravel:                    ON
-\nFull Pavement:                  ON
- */

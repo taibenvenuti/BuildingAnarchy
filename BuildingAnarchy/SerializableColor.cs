@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace BuildingAnarchy
@@ -9,10 +6,10 @@ namespace BuildingAnarchy
     [Serializable]
     public class SerializableColor
     {
-        public byte r;
-        public byte g;
-        public byte b;
-        public byte a;
+        public float r;
+        public float g;
+        public float b;
+        public float a;
 
         public SerializableColor()
         {
@@ -21,15 +18,23 @@ namespace BuildingAnarchy
 
         public SerializableColor(Color32 color)
         {
-            r = color.r;
-            g = color.g;
-            b = color.b;
-            a = color.a;
+            r = (float)color.r;
+            g = (float)color.g;
+            b = (float)color.b;
+            a = (float)color.a;
+        }
+
+        public SerializableColor(Color color)
+        {
+            r = (float)color.r;
+            g = (float)color.g;
+            b = (float)color.b;
+            a = (float)color.a;
         }
 
         public static implicit operator Color32(SerializableColor color)
         {
-            return new Color32(color.r, color.g, color.b, color.a);
+            return new Color32((byte)color.r, (byte)color.g, (byte)color.b, (byte)color.a);
         }
 
         public static implicit operator SerializableColor(Color32 color)
@@ -39,7 +44,7 @@ namespace BuildingAnarchy
 
         public static implicit operator Color(SerializableColor color)
         {
-            return new Color32(color.r, color.g, color.b, color.a);
+            return new Color(color.r, color.g, color.b, color.a);
         }
 
         public static implicit operator SerializableColor(Color color)
