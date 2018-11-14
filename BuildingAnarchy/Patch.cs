@@ -8,13 +8,13 @@ namespace BuildingAnarchy
     public class Patch
     {
         static void Prefix(ToolBase __instance, bool show, ref string text, Vector3 worldPos)
-        {
-            if (!string.IsNullOrEmpty(text))
-            {
-                text += "\n\n";
-            }
+        {            
             if (BuildingAnarchy.instance.IsBuildingTool)
             {
+                if (!string.IsNullOrEmpty(text))
+                {
+                    text += "\n\n";
+                }
                 text += BuildingAnarchy.instance.GenerateTooltipText();
             }
         }
